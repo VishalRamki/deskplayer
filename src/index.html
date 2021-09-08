@@ -8,13 +8,33 @@
         <title>Green</title>
     </head>
     <body class="font-sans">
+
+      <div data-tauri-drag-region class="titlebar">
+        <div class="titlebar-button" id="titlebar-minimize">
+          <img
+            src="https://api.iconify.design/mdi:window-minimize.svg"
+            alt="minimize"
+          />
+        </div>
+        <div class="titlebar-button" id="titlebar-maximize">
+          <img
+            src="https://api.iconify.design/mdi:window-maximize.svg"
+            alt="maximize"
+          />
+        </div>
+        <div class="titlebar-button" id="titlebar-close">
+          <img src="https://api.iconify.design/mdi:close.svg" alt="close" />
+        </div>
+      </div>
+      <br/>
         <audio id="player" src="./songs/song1.mp3"></audio>
+        <!-- 
         <div> 
             <button onclick="document.getElementById('player').play()">Play</button> 
             <button onclick="document.getElementById('player').pause()">Pause</button> 
             <button onclick="document.getElementById('player').volume += 0.1">Vol +</button> 
             <button onclick="document.getElementById('player').volume -= 0.1">Vol -</button> 
-          </div>
+          </div>-->
         <div class="bg-white dark:bg-gray-800 rounded-tl-xl sm:rounded-t-xl p-4 pb-6 sm:p-8 lg:p-4 lg:pb-6 xl:p-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
             <div class="flex items-center space-x-3.5 sm:space-x-5 lg:space-x-3.5 xl:space-x-5">
               <img src="https://images.unsplash.com/photo-1501717407930-5716fb0dc375?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=160&q=80" alt="" width="160" height="160" class="flex-none w-20 h-20 rounded-lg bg-gray-100" />
@@ -31,12 +51,10 @@
               </div>
             </div>
             <div class="space-y-2">
-              <div class="bg-gray-200 dark:bg-black rounded-full overflow-hidden">
-                <div class="bg-lime-500 dark:bg-lime-400 w-1/2 h-1.5" role="progressbar" aria-valuenow="1456" aria-valuemin="0" aria-valuemax="4550"></div>
-              </div>
+              <progress id="seekbar" min="0" max="100" value="0"></progress>
               <div class="text-gray-500 dark:text-gray-400 flex justify-between text-sm font-medium tabular-nums">
-                <div>24:16</div>
-                <div>75:50</div>
+                <div id="seekbar_current_value">--:--</div>
+                <div id="seekbar_max_value">--:--</div>
               </div>
             </div>
           </div>
@@ -58,11 +76,8 @@
                 <path d="M17 0L9 6l8 6V0z" fill="currentColor" />
               </svg>
             </button>
-            <button type="button" class="mx-auto">
-              <svg width="50" height="50" fill="none">
-                <circle class="text-gray-300 dark:text-gray-500" cx="25" cy="25" r="24" stroke="currentColor" stroke-width="1.5" />
-                <path d="M18 16h4v18h-4V16zM28 16h4v18h-4z" fill="currentColor" />
-              </svg>
+            <button onclick="document.getElementById('player').play()" type="button" class="mx-auto">
+              <i class="fas fa-play"></i>
             </button>
             <button type="button" class="mx-auto">
               <svg width="34" height="39" fill="none">
@@ -81,5 +96,48 @@
               1.0x
             </button>
           </div>
+
+          <script type="module">
+import '@fortawesome/fontawesome-free/css/all.css'
+import { appWindow, PhysicalSize } from '@tauri-apps/api/window'
+document
+  .getElementById('titlebar-minimize')
+  .addEventListener('click', () => appWindow.minimize())
+document
+  .getElementById('titlebar-maximize')
+  .addEventListener('click', () => appWindow.toggleMaximize())
+document
+  .getElementById('titlebar-close')
+  .addEventListener('click', () => appWindow.close())
+            var x = document.getElementsByTagName("body")[0].clientHeight;
+            console.log(x)
+            var d = appWindow.setMinSize(new PhysicalSize(document.getElementsByTagName("body")[0].clientWidth, document.getElementsByTagName("body")[0].clientHeight))
+          </script>
+
+          <script type="text/javascript">
+
+function convertToTime(st) {
+  var mins = Math.floor(st/60) ?? 0;
+  var secs = Math.round(st%60) ?? 0;
+;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+var audioPlayer = document.getElementById("player");
+audioPlayer.onloadeddata = function() {
+var z =document.getElementById("seekbar_max_value");
+z.innerText = convertToTime(audioPlayer.duration);
+document.getElementById("seekbar_current_value").innerText = convertToTime(0);
+}
+
+audioPlayer.ontimeupdate = function() {
+  // calculate the percentage of the progress of the song completed.
+  var percent = audioPlayer.currentTime / audioPlayer.duration * 100;
+
+  document.getElementById("seekbar").value = percent;
+
+  document.getElementById("seekbar_current_value").innerText = convertToTime(audioPlayer.currentTime);
+}
+
+          </script>
     </body>
 </html>

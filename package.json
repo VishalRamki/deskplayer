@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm-run-all --parallel 'watch:*'",
-
     "watch:start": "parcel serve src/index.html",
     "watch:css": "tailwindcss -i src/style.css -o src/assets/tailwind/tailwind.css -w"
   },
@@ -28,6 +27,7 @@
   },
   "homepage": "https://github.com/VishalRamki/deskplayer#readme",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "@tauri-apps/api": "^1.0.0-beta.8"
   },
   "devDependencies": {
