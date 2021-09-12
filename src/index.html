@@ -10,24 +10,26 @@
     <body class="font-sans">
 
       <div data-tauri-drag-region class="titlebar">
-        <div class="titlebar-button" id="titlebar-minimize">
-          <img
-            src="https://api.iconify.design/mdi:window-minimize.svg"
-            alt="minimize"
-          />
-        </div>
-        <div class="titlebar-button" id="titlebar-maximize">
-          <img
-            src="https://api.iconify.design/mdi:window-maximize.svg"
-            alt="maximize"
-          />
-        </div>
-        <div class="titlebar-button" id="titlebar-close">
-          <img src="https://api.iconify.design/mdi:close.svg" alt="close" />
+        <div class="titlebar-region titlebar-end-region">
+          <div class="titlebar-button" id="titlebar-minimize">
+            <img
+              src="https://api.iconify.design/mdi:window-minimize.svg"
+              alt="minimize"
+            />
+          </div>
+          <div class="titlebar-button" id="titlebar-maximize">
+            <img
+              src="https://api.iconify.design/mdi:window-maximize.svg"
+              alt="maximize"
+            />
+          </div>
+          <div class="titlebar-button" id="titlebar-close">
+            <img src="https://api.iconify.design/mdi:close.svg" alt="close" />
+          </div>
         </div>
       </div>
       <br/>
-        <audio id="player" src="./songs/song1.mp3"></audio>
+        <audio id="player"></audio>
         <!-- 
         <div> 
             <button onclick="document.getElementById('player').play()">Play</button> 
@@ -37,16 +39,17 @@
           </div>-->
         <div class="bg-white dark:bg-gray-800 rounded-tl-xl sm:rounded-t-xl p-4 pb-6 sm:p-8 lg:p-4 lg:pb-6 xl:p-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
             <div class="flex items-center space-x-3.5 sm:space-x-5 lg:space-x-3.5 xl:space-x-5">
-              <img src="https://images.unsplash.com/photo-1501717407930-5716fb0dc375?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=160&q=80" alt="" width="160" height="160" class="flex-none w-20 h-20 rounded-lg bg-gray-100" />
+              <!-- <img alt="" width="160" height="160" class="flex-none w-20 h-20 rounded-lg bg-gray-100" />
+              -->
+              <div class="">
+                <i class="fas fa-compact-disc fa-4x "></i>
+              </div>
               <div class="min-w-0 flex-auto space-y-0.5">
-                <p class="text-lime-600 dark:text-lime-400 text-sm sm:text-base lg:text-sm xl:text-base font-semibold uppercase">
-                  <abbr title="Episode">Ep.</abbr> 128
+                <p class="text-lime-600 dark:text-lime-400 text-sm sm:text-base lg:text-sm xl:text-base font-semibold uppercase" id="artist">
                 </p>
-                <h2 class="text-black dark:text-white text-base sm:text-xl lg:text-base xl:text-xl font-semibold truncate">
-                  Scaling CSS at Heroku with Utility Classes
+                <h2 class="text-black dark:text-white text-base sm:text-xl lg:text-base xl:text-xl font-semibold truncate" id="track_title">
                 </h2>
-                <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg lg:text-base xl:text-lg font-medium">
-                  Full Stack Radio
+                <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg lg:text-base xl:text-lg font-medium" id="album">
                 </p>
               </div>
             </div>
@@ -59,10 +62,8 @@
             </div>
           </div>
           <div class="bg-gray-50 text-black dark:bg-gray-900 dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 grid grid-cols-5 sm:grid-cols-7 lg:grid-cols-5 xl:grid-cols-7 items-center">
-            <button type="button" class="mx-auto">
-              <svg width="24" height="24" fill="none">
-                <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              </svg>
+            <button type="button" id="open_file" onclick="onButtonClicked()" class="mx-auto">
+              <i class="fas fa-folder-open"></i>
             </button>
             <button type="button" class="hidden sm:block lg:hidden xl:block mx-auto">
               <svg width="17" height="18">
@@ -76,8 +77,8 @@
                 <path d="M17 0L9 6l8 6V0z" fill="currentColor" />
               </svg>
             </button>
-            <button onclick="document.getElementById('player').play()" type="button" class="mx-auto">
-              <i class="fas fa-play"></i>
+            <button onclick="play_btn()" type="button" class="mx-auto">
+              <i class="fas fa-play" id="play_btn_i"></i>
             </button>
             <button type="button" class="mx-auto">
               <svg width="34" height="39" fill="none">
@@ -113,8 +114,17 @@ document
             console.log(x)
             var d = appWindow.setMinSize(new PhysicalSize(document.getElementsByTagName("body")[0].clientWidth, document.getElementsByTagName("body")[0].clientHeight))
           </script>
+          <script type="module">
+const musicMetadata = require('music-metadata-browser');
 
-          <script type="text/javascript">
+var updateMeta = async function(src) {
+  musicMetadata.fetchFromUrl(audioPlayer.src).then(async function(e) {
+    console.log(e)
+  document.getElementById("artist").innerText = e.common.artist ?? audioPlayer.src;
+  document.getElementById("album").innerText = e.common.album ?? audioPlayer.src;
+  document.getElementById("track_title").innerText = e.common.title ?? audioPlayer.src;
+  });
+}
 
 function convertToTime(st) {
   var mins = Math.floor(st/60) ?? 0;
@@ -124,6 +134,7 @@ function convertToTime(st) {
 }
 var audioPlayer = document.getElementById("player");
 audioPlayer.onloadeddata = function() {
+  updateMeta(audioPlayer.src)
 var z =document.getElementById("seekbar_max_value");
 z.innerText = convertToTime(audioPlayer.duration);
 document.getElementById("seekbar_current_value").innerText = convertToTime(0);
@@ -137,6 +148,56 @@ audioPlayer.ontimeupdate = function() {
 
   document.getElementById("seekbar_current_value").innerText = convertToTime(audioPlayer.currentTime);
 }
+          </script>
+          <script type="text/javascript">
+
+function play_btn() {
+  let myAudio = document.getElementById('player');
+  if (myAudio.paused) {
+    document.getElementById("play_btn_i").classList.add("fa-pause")
+    document.getElementById("play_btn_i").classList.remove("fa-play")
+    myAudio.play()
+  } else {
+    document.getElementById("play_btn_i").classList.remove("fa-pause")
+    document.getElementById("play_btn_i").classList.add("fa-play")
+    myAudio.pause()
+  }
+  
+
+}
+// ------------------------ File Picker
+// Content wrapper element
+let contentElement = document.getElementById("open_file");
+
+// Button callback
+async function onButtonClicked(){
+    let files = await selectFile("audio/*", true);
+    console.log(URL.createObjectURL(files[0]))
+    document.getElementById("player").src = URL.createObjectURL(files[0]);
+    //contentElement.innerHTML = files.map(file => `<img src="${URL.createObjectURL(file)}" style="width: 100px; height: 100px;">`).join('');
+}
+
+// ---- function definition ----
+function selectFile (contentType, multiple){
+    return new Promise(resolve => {
+        let input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = multiple;
+        input.accept = contentType;
+
+        input.onchange = _ => {
+            let files = Array.from(input.files);
+            if (multiple)
+                resolve(files);
+            else
+                resolve(files[0]);
+        };
+
+        input.click();
+    });
+}
+
+
 
           </script>
     </body>
